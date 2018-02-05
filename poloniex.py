@@ -11,7 +11,7 @@ def prompt_for_date_limits(f_dt, l_dt):
     print('oldest data is dated',dt.datetime.strftime(f_dt, '%Y-%m-%d %H:%M:%S'))
     print('latest data is dated',dt.datetime.strftime(l_dt, '%Y-%m-%d %H:%M:%S'))
     in_ll = input("""enter first date in "yyyy,m,d,h,m" format: """)
-    print('soorry!  load function not supported yet... try out update! it works...')
+    print('load function not supported yet.')
     return datetime.datetime(2018,1,1,0,0), datetime.datetime(2018,1,1,0,0)
 
     #if...

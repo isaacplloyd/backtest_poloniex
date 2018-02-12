@@ -6,15 +6,62 @@ import datetime as dt
 import datetime
 import pandas as pd
 import os.path
+import numpy as np
+
+def test_ma(df):
+    '''
+    Test a simple moving avg trading strategy and return performance vs market
+    param:      df; pd.DataFrame containing crypto data range to test with
+    out ->      float market performance
+    out ->      float strategy performance
+    '''
+    lead = int(input('lead lookback period: '))
+    lag = int(input('lag lookback period: '))
+    pc_thresh = float(input('percent threshold (dec): '))
+    ma_df = df.copy()
+    ma_df['lead'] = ma_df['close'].rolling(lead).mean()
+    ma_df['lag'] = ma_df['close'].rolling(lag).mean()
+    ma_df['lead-lag'] = ma_df['lead']-ma_df['lag']
+    ma_df['pc_diff'] = ma_df['lead-lag']/ma_df['close']
+    ma_df['regime'] = np.where(ma_df['pc_diff'] > pc_thresh, 1, 0)
+    ma_df['regime'] = np.where(ma_df['pc_diff'] < -pc_thresh, -1, ma_df['regime'])
+    ma_df['Market'] = np.log(ma_df['close'] / ma_df['close'].shift(1))
+    ma_df['Strategy'] = ma_df['regime'].shift(1) * ma_df['Market']
+    ma_df[['Market','Strategy']] = ma_df[['Market','Strategy']].cumsum().apply(np.exp)
+
+def get_data_range(df, start_date, end_date):
+    '''
+    Extract range of crypto data from a dataframe
+    param:      df; pd.DataFrame containing crypto database to extract range from
+    param:      start_date: datetime.datetime of first data to pull
+    param:      end_date: datetime.datetime of last data to pull
+    out ->      pd.DataFrame containing range of data from start to end date
+    '''
+    zero_date = date_limits(df)[0]
+    start_index = int((start_date - zero_date)/datetime.timedelta(minutes=5))
+    end_index = int((end_date - zero_date)/datetime.timedelta(minutes=5))
+    #instantiate new dataframe and give it same columns as CSV
+    axes = df.axes
+    df_out = pd.DataFrame(columns=axes[1], 
+                          index=range(0, (end_index-start_index)))
+    for column in axes[1]:
+        i = 0
+        #copy desired CSV data into the new dataframe
+        ii = start_index
+        while (ii <= end_index):
+            df_out[column][i] = df[column][ii]
+            i += 1
+            ii += 1
+    return df_out
 
 def prompt_for_date_limits(f_dt, l_dt):
     print('oldest data is dated',dt.datetime.strftime(f_dt, '%Y-%m-%d %H:%M:%S'))
     print('latest data is dated',dt.datetime.strftime(l_dt, '%Y-%m-%d %H:%M:%S'))
-    in_ll = input("""enter first date in "yyyy,m,d,h,m" format: """)
-    print('load function not supported yet.')
-    return datetime.datetime(2018,1,1,0,0), datetime.datetime(2018,1,1,0,0)
-
-    #if...
+    s = input("""Desired start date (yyyy,mm,dd,hh,mm): """).split(",")
+    e = input("""Desired end date (yyyy,mm,dd,hh,mm): """).split(",")
+    s_dt = datetime.datetime(int(s[0]),int(s[1]),int(s[2]),int(s[3]),0)
+    e_dt = datetime.datetime(int(e[0]),int(e[1]),int(e[2]),int(e[3]),0)
+    return s_dt, e_dt
 
 def ticker_data_exists(symbol):
     '''

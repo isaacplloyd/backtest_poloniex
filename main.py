@@ -3,12 +3,15 @@ import pandas as pd
 
 from poloniex import dl_history, get_tickers, posix
 from poloniex import update_csv, find_next_timestamp
-from poloniex import ticker_data_exists, prompt_for_date_limits
+from poloniex import date_limits
+from poloniex import ticker_data_exists, prompt_for_date_limits, get_data_range
+from poloniex import test_ma
 
 
 
 def main():
     cmd = str()
+    loaded = False
     #Endless loop reads user input and executes selected function
     while cmd.lower() != 'exit':    
         cmd = input('cmd: ')
@@ -45,10 +48,25 @@ def main():
             if exists:
                 df = pd.read_csv(path)
                 f_dt, l_dt = date_limits(df)
-                lower_lim, upper_lim = prompt_for_date_limits(f_dt, l_dt)
-                #open_df = get_data_range(path, '...')
+                lower_lim, upper_lim = prompt_for_date_limits(f_dt, l_dt)         
+                open_df = get_data_range(df, lower_lim, upper_lim)
+                loaded = True
+                print('data loaded and ready for testing')
             else:
                 print("./CSVs/"+symbol+'.csv not found.')
+
+        elif cmd.lower() == 'test ma':
+            if loaded:
+                test_ma(open_df)
+                
+                
+                
+                
+            else:
+                print('data not loaded')
+
+
+
         elif cmd.lower() != 'exit':
             print('cmd not recognized')
 

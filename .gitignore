@@ -1,0 +1,7 @@
+
+__pycache__/poloniex.cpython-36.pyc
+CSVs/BTC_BTS.csv
+*.csv
+temp/1.0.1_QueryPoloniex_UpdateCSVs.py
+temp/1.0.1_QueryPoloniex_UpdateCSVs_x.py
+temp/test.txt

@@ -8,6 +8,9 @@ import pandas as pd
 import os.path
 import numpy as np
 
+def test_ma():
+    return 'nothing'
+
 def get_data_range(df, start_date, end_date):
     '''
     Extract range of crypto data from a dataframe
